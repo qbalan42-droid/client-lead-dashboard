@@ -83,7 +83,7 @@ header{border-bottom:1px solid var(--line);background:var(--surface);position:st
 .frow .ft{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
 .frow .ft .n{color:var(--muted)} .frow .ft .v{font-weight:700;font-variant-numeric:tabular-nums}
 .frow .track{height:8px;background:var(--surface-2);border-radius:5px;overflow:hidden}
-.frow .fill{height:100%;background:var(--accent);border-radius:5px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.frow .fill{height:100%;width:100%;background:var(--accent);border-radius:5px;transform-origin:left;transform:scaleX(var(--w,1));transition:transform 1s cubic-bezier(.16,1,.3,1)}
 .frow:nth-child(2) .fill{background:var(--accent)} .frow:nth-child(3) .fill{background:#6FA0F2} .frow:nth-child(4) .fill{background:var(--green)}
 .src-row{display:flex;justify-content:space-between;align-items:center;padding:11px 22px;border-bottom:1px solid var(--line);font-size:13.5px}
 .src-row:last-child{border-bottom:0}
@@ -149,10 +149,10 @@ header{border-bottom:1px solid var(--line);background:var(--surface);position:st
       <div class="panel">
         <h2>Conversion funnel</h2>
         <div class="funnel">
-          <div class="frow"><div class="ft"><span class="n">Visitors engaged</span><span class="v">312</span></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
-          <div class="frow"><div class="ft"><span class="n">Leads captured</span><span class="v">47</span></div><div class="track"><div class="fill" style="width:64%"></div></div></div>
-          <div class="frow"><div class="ft"><span class="n">Qualified</span><span class="v">28</span></div><div class="track"><div class="fill" style="width:42%"></div></div></div>
-          <div class="frow"><div class="ft"><span class="n">Booked</span><span class="v">14</span></div><div class="track"><div class="fill" style="width:24%"></div></div></div>
+          <div class="frow"><div class="ft"><span class="n">Visitors engaged</span><span class="v">312</span></div><div class="track"><div class="fill" style="--w:1"></div></div></div>
+          <div class="frow"><div class="ft"><span class="n">Leads captured</span><span class="v">47</span></div><div class="track"><div class="fill" style="--w:.64"></div></div></div>
+          <div class="frow"><div class="ft"><span class="n">Qualified</span><span class="v">28</span></div><div class="track"><div class="fill" style="--w:.42"></div></div></div>
+          <div class="frow"><div class="ft"><span class="n">Booked</span><span class="v">14</span></div><div class="track"><div class="fill" style="--w:.24"></div></div></div>
         </div>
       </div>
       <div class="panel">
