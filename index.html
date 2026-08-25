@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Live Lead Dashboard | Client Command Center</title>
+<meta name="description" content="A live lead dashboard — watch leads get captured, qualified, and booked in real time. The agency deliverable that replaces the monthly PDF.">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="%230B0F17"/><circle cx="16" cy="16" r="6" fill="none" stroke="%235B8DEF" stroke-width="2.5"/><circle cx="16" cy="16" r="2" fill="%235B8DEF"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesque:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --bg:#0A0D14; --surface:#111621; --surface-2:#161C2A; --line:#212938; --line-2:#2E384B;
+  --text:#EAEEF6; --muted:#93A0B5; --faint:#61708A;
+  --accent:#5B8DEF; --accent-2:#4A7BE0; --accent-soft:rgba(91,141,239,.12);
+  --green:#3FCF8E; --green-soft:rgba(63,207,142,.14);
+  --amber:#F0B94E; --amber-soft:rgba(240,185,78,.14);
+  --body:"Hanken Grotesque",system-ui,sans-serif; --mono:"JetBrains Mono",monospace;
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.5;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:#fff}
+.mono{font-family:var(--mono)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+
+/* top bar */
+header{border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:10}
+.top{display:flex;align-items:center;justify-content:space-between;height:66px}
+.client{display:flex;align-items:center;gap:12px}
+.client .logo{width:38px;height:38px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line-2);display:grid;place-items:center;font-weight:800;color:var(--accent);font-size:16px}
+.client .nm{font-weight:700;font-size:16px}
+.client .sub{font-size:12px;color:var(--faint)}
+.top-right{display:flex;align-items:center;gap:16px}
+.live-badge{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--green);font-weight:600;background:var(--green-soft);border:1px solid rgba(63,207,142,.25);padding:6px 12px;border-radius:999px}
+.live-badge .d{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,207,142,.5)}70%{box-shadow:0 0 0 6px rgba(63,207,142,0)}100%{box-shadow:0 0 0 0 rgba(63,207,142,0)}}
+@media(prefers-reduced-motion:reduce){.live-badge .d{animation:none}}
+.range{font-size:13px;color:var(--muted);font-family:var(--mono)}
+@media(max-width:640px){.top-right .range{display:none}}
+
+/* kpi row */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:26px 0}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;position:relative;overflow:hidden}
+.kpi .lab{font-size:12px;color:var(--muted);letter-spacing:.02em;display:flex;align-items:center;gap:7px}
+.kpi .lab svg{width:15px;height:15px;color:var(--accent)}
+.kpi .val{font-size:36px;font-weight:800;letter-spacing:-.03em;margin-top:8px;font-variant-numeric:tabular-nums}
+.kpi .delta{font-size:12.5px;margin-top:6px;display:flex;align-items:center;gap:5px;font-weight:600}
+.kpi .delta.up{color:var(--green)} .kpi .delta.flat{color:var(--faint)}
+.kpi.hero{background:linear-gradient(155deg,var(--accent-soft),transparent 60%),var(--surface)}
+.kpi.hero .val{color:var(--accent)}
+.spark{position:absolute;right:16px;bottom:14px;opacity:.5}
+@media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}} @media(max-width:520px){.kpis{grid-template-columns:1fr}}
+
+/* main grid */
+.grid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;padding-bottom:60px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.panel h2{font-size:14px;font-weight:700;padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.panel h2 .count{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:500}
+
+/* lead feed */
+.feed{max-height:520px;overflow-y:auto}
+.feed::-webkit-scrollbar{width:6px}.feed::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:3px}
+.lead{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:15px 22px;border-bottom:1px solid var(--line);transition:background .3s}
+.lead.new{animation:slidein .5s cubic-bezier(.16,1,.3,1);background:var(--accent-soft)}
+@keyframes slidein{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.lead .av{width:38px;height:38px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line-2);display:grid;place-items:center;font-weight:700;font-size:14px;color:var(--muted)}
+.lead .info .nm{font-weight:600;font-size:14.5px}
+.lead .info .meta{font-size:12.5px;color:var(--faint);margin-top:2px}
+.lead .info .meta b{color:var(--muted);font-weight:500}
+.lead .right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;font-family:var(--mono);letter-spacing:.02em;white-space:nowrap}
+.pill.booked{background:var(--green-soft);color:var(--green)}
+.pill.qualified{background:var(--accent-soft);color:var(--accent)}
+.pill.new{background:var(--amber-soft);color:var(--amber)}
+.lead .ago{font-size:11px;color:var(--faint);font-family:var(--mono)}
+
+/* right column */
+.side{display:flex;flex-direction:column;gap:16px}
+.funnel{padding:20px 22px}
+.frow{margin:14px 0}
+.frow .ft{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.frow .ft .n{color:var(--muted)} .frow .ft .v{font-weight:700;font-variant-numeric:tabular-nums}
+.frow .track{height:8px;background:var(--surface-2);border-radius:5px;overflow:hidden}
+.frow .fill{height:100%;background:var(--accent);border-radius:5px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.frow:nth-child(2) .fill{background:var(--accent)} .frow:nth-child(3) .fill{background:#6FA0F2} .frow:nth-child(4) .fill{background:var(--green)}
+.src-row{display:flex;justify-content:space-between;align-items:center;padding:11px 22px;border-bottom:1px solid var(--line);font-size:13.5px}
+.src-row:last-child{border-bottom:0}
+.src-row .s{display:flex;align-items:center;gap:9px;color:var(--muted)}
+.src-row .s .dot{width:8px;height:8px;border-radius:2px}
+.src-row .v{font-weight:700;font-variant-numeric:tabular-nums}
+
+.note{text-align:center;color:var(--faint);font-size:12px;padding:24px 0 40px}
+.note b{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap top">
+    <div class="client">
+      <div class="logo">D</div>
+      <div>
+        <div class="nm">Delgado HVAC &amp; Air</div>
+        <div class="sub">Lead command center · powered by your agency</div>
+      </div>
+    </div>
+    <div class="top-right">
+      <span class="range mono">Last 7 days</span>
+      <span class="live-badge"><span class="d"></span>Live</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi hero">
+      <div class="lab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9z" stroke-linejoin="round"/></svg>Speed to lead</div>
+      <div class="val" id="k-speed">1m 48s</div>
+      <div class="delta up">↓ 62% faster than your old form</div>
+    </div>
+    <div class="kpi">
+      <div class="lab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke-linecap="round" stroke-linejoin="round"/></svg>Leads captured</div>
+      <div class="val" id="k-leads">47</div>
+      <div class="delta up">↑ 18 vs last week</div>
+    </div>
+    <div class="kpi">
+      <div class="lab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke-linecap="round" stroke-linejoin="round"/></svg>Booked</div>
+      <div class="val" id="k-booked">14</div>
+      <div class="delta up">↑ 30% booking rate</div>
+    </div>
+    <div class="kpi">
+      <div class="lab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke-linecap="round" stroke-linejoin="round"/></svg>Pipeline value</div>
+      <div class="val" id="k-value">$38.6K</div>
+      <div class="delta flat">est. from booked jobs</div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="grid">
+    <div class="panel">
+      <h2>Live lead feed <span class="count" id="feed-count">47 this week</span></h2>
+      <div class="feed" id="feed"></div>
+    </div>
+
+    <div class="side">
+      <div class="panel">
+        <h2>Conversion funnel</h2>
+        <div class="funnel">
+          <div class="frow"><div class="ft"><span class="n">Visitors engaged</span><span class="v">312</span></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+          <div class="frow"><div class="ft"><span class="n">Leads captured</span><span class="v">47</span></div><div class="track"><div class="fill" style="width:64%"></div></div></div>
+          <div class="frow"><div class="ft"><span class="n">Qualified</span><span class="v">28</span></div><div class="track"><div class="fill" style="width:42%"></div></div></div>
+          <div class="frow"><div class="ft"><span class="n">Booked</span><span class="v">14</span></div><div class="track"><div class="fill" style="width:24%"></div></div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Lead sources</h2>
+        <div class="src-row"><span class="s"><span class="dot" style="background:var(--accent)"></span>Website assistant</span><span class="v">31</span></div>
+        <div class="src-row"><span class="s"><span class="dot" style="background:var(--green)"></span>Google Ads</span><span class="v">9</span></div>
+        <div class="src-row"><span class="s"><span class="dot" style="background:var(--amber)"></span>Facebook</span><span class="v">5</span></div>
+        <div class="src-row"><span class="s"><span class="dot" style="background:#8B7BF2"></span>Referral</span><span class="v">2</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">Live demo with sample data. <b>Wire to real lead sources for production.</b> Every client gets their own branded dashboard.</div>
+</div>
+
+<script>
+// Sample lead stream — demonstrates the "live" experience (deterministic seed data)
+const names=[["Jordan Ellis","JE"],["Marisol Vega","MV"],["Trevor Nash","TN"],["Aisha Bello","AB"],["Frank Ortega","FO"],["Dana Kwok","DK"],["Luis Marchetti","LM"],["Renee Park","RP"],["Cody Barnes","CB"],["Yara Haddad","YH"],["Sam Whitfield","SW"],["Nina Castro","NC"]];
+const jobs=["AC repair, no cooling","New furnace quote","Duct cleaning","Thermostat install","Emergency - no heat","Maintenance plan","Mini-split install","Water heater"];
+const sources=["Website assistant","Google Ads","Facebook","Referral"];
+const statuses=[["booked","Booked"],["qualified","Qualified"],["new","New"]];
+const feed=document.getElementById("feed");
+let seed=7;
+function rnd(){seed=(seed*9301+49297)%233280;return seed/233280}
+function pick(a){return a[Math.floor(rnd()*a.length)]}
+function makeLead(mins){
+  const [nm,in_]=pick(names), job=pick(jobs), src=pick(sources);
+  const st=mins<3?statuses[Math.floor(rnd()*3)]:(rnd()>.4?statuses[0]:statuses[1]);
+  const ago=mins<1?"just now":mins<60?mins+"m ago":Math.floor(mins/60)+"h ago";
+  const el=document.createElement("div");
+  el.className="lead"+(mins<1?" new":"");
+  el.innerHTML=`<div class="av">${in_}</div>
+    <div class="info"><div class="nm">${nm}</div><div class="meta"><b>${job}</b> · via ${src}</div></div>
+    <div class="right"><span class="pill ${st[0]}">${st[1]}</span><span class="ago">${ago}</span></div>`;
+  return el;
+}
+// seed the feed with history
+let t=2;
+for(let i=0;i<12;i++){feed.appendChild(makeLead(t));t+=Math.floor(rnd()*40)+8}
+// live: a new lead lands every ~9s
+setInterval(()=>{
+  const el=makeLead(0);
+  feed.insertBefore(el,feed.firstChild);
+  if(feed.children.length>16)feed.removeChild(feed.lastChild);
+  const k=document.getElementById("k-leads");k.textContent=(+k.textContent+1);
+  const fc=document.getElementById("feed-count");fc.textContent=(+k.textContent)+" this week";
+  setTimeout(()=>el.classList.remove("new"),1500);
+},9000);
+</script>
+</body>
+</html>
